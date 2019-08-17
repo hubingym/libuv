@@ -1,0 +1,12 @@
+{
+  "name": "hello",
+  "desc": "",
+  "version": "1.0.0",
+  "buildtype": "program",
+  "install_dir": "/usr/local/bin",
+  "run_args": "",
+  "cflags": "-I../../include",
+  "cxxflags": "",
+  "ldflags": "../../libuv_a.a",
+  "win32ldflags": "../../libuv_win.a"
+}
