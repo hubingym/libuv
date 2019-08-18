@@ -3,10 +3,10 @@
   "desc": "",
   "version": "1.0.0",
   "buildtype": "program",
-  "install_dir": "/usr/local/bin",
+  "install_dir": "c:/bin",
   "run_args": "",
   "cflags": "-I../../include",
   "cxxflags": "",
   "ldflags": "../../libuv_a.a",
-  "win32ldflags": "../../libuv_win.a"
+  "win32ldflags": "../../libuv_win.a -lws2_32 -lpsapi -liphlpapi -luserenv"
 }

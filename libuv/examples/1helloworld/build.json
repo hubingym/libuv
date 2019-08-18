@@ -8,5 +8,5 @@
   "cflags": "-I../../include",
   "cxxflags": "",
   "ldflags": "../../libuv_a.a",
-  "win32ldflags": "../../libuv_win.a"
+  "win32ldflags": "../../libuv_win.a -lws2_32 -lpsapi -liphlpapi -luserenv"
 }
