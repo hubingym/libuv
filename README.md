@@ -1,4 +1,4 @@
-# vlibuv
+# libuv for v
 [libuv](https://github.com/libuv/libuv) for v  
 
 ### How to build libuv from source
@@ -27,6 +27,6 @@ $ cmake ../..
 $ cmake --build .
 ```
 
-* 将include、libuv_a.a拷贝到vlibuv/libuv  
+* 将include、libuv_a.a拷贝到static/  
 
 `winodws下把libuv_a.a命名为libuv_win.a`
