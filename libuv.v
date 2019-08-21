@@ -76,7 +76,7 @@ pub fn (uv mut Uv) new_timer(cb voidptr) *Timer {
     return t
 }
 
-pub fn (t mut Timer) set_timeout(millisec int) {
+pub fn (t mut Timer) start(millisec int) {
     C.uv_timer_start(&t._timer, t.cb, millisec, millisec)
 }
 
