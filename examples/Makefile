@@ -1,7 +1,6 @@
-# https://github.com/hubingym/cbm
-
 examples=\
 	timer\
+	file-system\
 	idle-basic
 
 all:

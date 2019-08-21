@@ -4,7 +4,6 @@ import libuv
 
 struct GloablData {
 mut:
-    counter i64
     timer1 *libuv.Timer
     timer2 *libuv.Timer
 }
