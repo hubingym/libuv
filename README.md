@@ -56,7 +56,7 @@ pub fn (idle mut Idle) stop()
 
 * buf对象
 
-buf对象用于分配内存，主要用做file对象的数据缓冲区  
+buf对象用于分配内存，主要用做文件操作时的数据缓冲区  
 
 // 分配内存  
 pub fn (uv mut Uv) new_buf(len int) UvBuf  
@@ -65,7 +65,7 @@ pub fn (buf UvBuf) free()
 // 从现有内存中截取部分内存,返回对象不需要释放内存  
 pub fn (buf UvBuf) get_temp_buf(len int) UvBuf  
 
-* file_req对象
+* FileRequset对象
 
 pub fn (uv mut Uv) new_file_request() *FileRequset  
 pub fn (req mut FileRequset) get_result() int  
@@ -80,6 +80,14 @@ pub fn (uv mut Uv) fs_read(req mut FileRequset, fd int, buf UvBuf, cb voidptr)
 pub fn (uv mut Uv) fs_write(req mut FileRequset, fd int, buf UvBuf, cb voidptr)  
 pub fn (uv mut Uv) fs_close(req mut FileRequset, fd int, cb voidptr)  
 
+* WorkRequest对象
+
+pub fn (uv mut Uv) new_work_request(data voidptr) *WorkRequest  
+pub fn (req mut WorkRequest) cancel()  
+
+* 任务队列
+
+pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr)  
 
 ### How to build libuv from source
 

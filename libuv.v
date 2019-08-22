@@ -28,6 +28,12 @@ struct C.uv_fs_t {
     result int
 }
 
+struct C.uv_work_t {
+}
+
+struct C.uv_req_t {
+}
+
 // loop
 fn C.uv_default_loop() *C.uv_loop_t
 fn C.uv_run(*C.uv_loop_t, int) int
@@ -56,6 +62,12 @@ fn C.uv_fs_open(loop *C.uv_loop_t, req *C.uv_fs_t, filename byteptr, flags int, 
 fn C.uv_fs_close(loop *C.uv_loop_t, req *C.uv_fs_t, fd int, cb voidptr) int
 fn C.uv_fs_read(loop *C.uv_loop_t, req *C.uv_fs_t, fd int, bufs *C.uv_buf_t, nbufs int, offset int, cb voidptr) int
 fn C.uv_fs_write(loop *C.uv_loop_t, req *C.uv_fs_t, fd int, bufs *C.uv_buf_t, nbufs int, offset int, cb voidptr) int
+
+// queue work
+fn C.uv_queue_work(loop *C.uv_loop_t, req *C.uv_work_t, cb voidptr, after_cb voidptr) int
+
+// request
+fn C.uv_cancel(req *C.uv_req_t) int
 
 fn todo_remove(){}
 
@@ -158,14 +170,14 @@ pub fn (buf UvBuf) free() {
 
 struct FileRequset {
     _req C.uv_fs_t
-pub: mut:
+pub:
     uv *Uv
 }
 
 pub fn (uv mut Uv) new_file_request() *FileRequset {
     mut req := &FileRequset{
+        uv: uv
     }
-    req.uv = uv
     return req
 }
 
@@ -204,4 +216,27 @@ pub fn (uv mut Uv) fs_write(req mut FileRequset, fd int, buf UvBuf, cb voidptr) 
 
 pub fn (uv mut Uv) fs_close(req mut FileRequset, fd int, cb voidptr) {
     C.uv_fs_close(uv.loop, &req._req, fd, cb)
+}
+
+struct WorkRequest {
+    _req C.uv_work_t
+pub:
+    uv *Uv
+    data voidptr // 存放用户数据
+}
+
+pub fn (uv mut Uv) new_work_request(data voidptr) *WorkRequest {
+    mut req := &WorkRequest{
+        uv: uv
+        data: data
+    }
+    return req
+}
+
+pub fn (req mut WorkRequest) cancel() {
+    C.uv_cancel(&req._req)
+}
+
+pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr) {
+    C.uv_queue_work(uv.loop, &req._req, cb, after_cb)
 }

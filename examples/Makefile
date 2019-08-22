@@ -1,6 +1,7 @@
 examples=\
 	timer\
 	file-system\
+	queue-work\
 	idle-basic
 
 all:
