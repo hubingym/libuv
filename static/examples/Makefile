@@ -1,13 +1,13 @@
 # https://github.com/hubingym/cbm
 
 examples=\
-	1helloworld\
-	1idle-compute
+	helloworld\
+	idle-compute
 
 all:
-	for dir in $(examples); do cbm -d $$dir build; cbm -d $$dir run; done
+	for dir in $(examples); do echo -- runing $$dir --; cbm -d $$dir build; cbm -d $$dir run; echo ; done
 
 clean:
-	for dir in $(examples); do cbm -d $$dir clean; done
+	for dir in $(examples); do echo -- clean $$dir --; cbm -d $$dir clean; echo ; done
 
 .PHONY: all clean
