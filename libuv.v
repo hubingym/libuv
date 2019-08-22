@@ -156,72 +156,52 @@ pub fn (buf UvBuf) free() {
     free(buf._buf.base)
 }
 
-struct File {
-    _file C.uv_fs_t
-    cb fn(voidptr)
-pub:
+struct FileRequset {
+    _req C.uv_fs_t
+pub: mut:
     uv *Uv
-mut:
-    result int
 }
 
-fn inner_fs_cb(req *C.uv_fs_t) {
-    // req.result >= 0时,表示正常
-    // req.result < 0时,表示异常,可通过uv_strerror得到错误原因
-    mut file := *File(req)
-    file.result = req.result
-    if !isnil(file.cb) {
-        cb := file.cb
-        cb(file)
+pub fn (uv mut Uv) new_file_request() *FileRequset {
+    mut req := &FileRequset{
     }
+    req.uv = uv
+    return req
 }
 
-pub fn (uv mut Uv) fs_open(path string, flags int, mod int, cb voidptr) *File {
-    mut file := &File{
-        uv: uv
-        cb: cb
-    }
-    C.uv_fs_open(uv.loop, &file._file, path.str, flags, mod, inner_fs_cb)
-    return file
+pub fn (req mut FileRequset) get_result() int {
+    return req._req.result
 }
 
-pub fn (uv mut Uv) fs_read(fd int, buf UvBuf, cb voidptr) *File {
-    mut file := &File{
-        uv: uv
-        cb: cb
-    }
-    C.uv_fs_read(uv.loop, &file._file, fd, &buf._buf, 1, -1, inner_fs_cb)
-    return file
+pub fn (req mut FileRequset) cleanup() {
+    // The uv_fs_req_cleanup() function must always be called on filesystem requests to free internal memory allocations in libuv
+    C.uv_fs_req_cleanup(&req._req)
 }
 
-pub fn (uv mut Uv) fs_write(fd int, buf UvBuf, cb voidptr) *File {
-    mut file := &File{
-        uv: uv
-        cb: cb
-    }
-    C.uv_fs_write(uv.loop, &file._file, fd, &buf._buf, 1, -1, inner_fs_cb)
-    return file
-}
-
-pub fn (uv mut Uv) fs_close(fd int, cb voidptr) *File {
-    mut file := &File{
-        uv: uv
-        cb: cb
-    }
-    C.uv_fs_close(uv.loop, &file._file, fd, inner_fs_cb)
-    return file
-}
-
-pub fn (file mut File) strerror() string {
-    s := C.uv_strerror(file.result)
+pub fn (req mut FileRequset) strerror() string {
+    err := req.get_result()
+    s := C.uv_strerror(err)
     return tos_clone(s)
 }
 
-pub fn (file mut File) err_name() string {
-    s := C.uv_err_name(file.result)
+pub fn (req mut FileRequset) err_name() string {
+    err := req.get_result()
+    s := C.uv_err_name(err)
     return tos_clone(s)
 }
 
-pub fn (file mut File) cleanup() {
-    C.uv_fs_req_cleanup(&file._file)
+pub fn (uv mut Uv) fs_open(req mut FileRequset, path string, flags int, mod int, cb voidptr) {
+    C.uv_fs_open(uv.loop, &req._req, path.str, flags, mod, cb)
+}
+
+pub fn (uv mut Uv) fs_read(req mut FileRequset, fd int, buf UvBuf, cb voidptr) {
+    C.uv_fs_read(uv.loop, &req._req, fd, &buf._buf, 1, -1, cb)
+}
+
+pub fn (uv mut Uv) fs_write(req mut FileRequset, fd int, buf UvBuf, cb voidptr) {
+    C.uv_fs_write(uv.loop, &req._req, fd, &buf._buf, 1, -1, cb)
+}
+
+pub fn (uv mut Uv) fs_close(req mut FileRequset, fd int, cb voidptr) {
+    C.uv_fs_close(uv.loop, &req._req, fd, cb)
 }
