@@ -6,10 +6,6 @@ module libuv
 #flag linux @VMOD/libuv/static/libuv_a.a
 #flag darwin @VMOD/libuv/static/libuv_a.a
 
-import const (
-    UV_RUN_DEFAULT
-)
-
 struct C.uv_loop_t {
 }
 
@@ -32,6 +28,9 @@ struct C.uv_work_t {
 }
 
 struct C.uv_req_t {
+}
+
+struct C.uv_stream_t {
 }
 
 // loop
@@ -69,6 +68,10 @@ fn C.uv_queue_work(loop *C.uv_loop_t, req *C.uv_work_t, cb voidptr, after_cb voi
 // request
 fn C.uv_cancel(req *C.uv_req_t) int
 
+// networking
+fn C.uv_listen(stream *C.uv_stream_t, backlog int, cb voidptr) int
+fn C.uv_listen(stream *C.uv_stream_t, backlog int, cb voidptr) int
+
 fn todo_remove(){}
 
 struct Uv {
@@ -88,7 +91,7 @@ pub fn new_uv(extra voidptr) *Uv {
 }
 
 pub fn (uv mut Uv) run_loop() {
-    C.uv_run(uv.loop, UV_RUN_DEFAULT)
+    C.uv_run(uv.loop, C.UV_RUN_DEFAULT)
 }
 
 pub fn (uv mut Uv) stop() {
