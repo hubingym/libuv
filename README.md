@@ -44,13 +44,13 @@ uv.run_loop()
 
 * timer对象
 
-pub fn (uv mut Uv) new_timer(cb voidptr) *Timer  
+pub fn (uv mut Uv) new_timer(cb voidptr) &Timer  
 pub fn (t mut Timer) start(millisec int)  
 pub fn (t mut Timer) stop()  
 
 * idle对象
 
-pub fn (uv mut Uv) new_idle(cb voidptr) *Idle  
+pub fn (uv mut Uv) new_idle(cb voidptr) &Idle  
 pub fn (idle mut Idle) start()  
 pub fn (idle mut Idle) stop()  
 
@@ -67,7 +67,7 @@ pub fn (buf UvBuf) get_temp_buf(len int) UvBuf
 
 * FileRequset对象
 
-pub fn (uv mut Uv) new_file_request() *FileRequset  
+pub fn (uv mut Uv) new_file_request() &FileRequset  
 pub fn (req mut FileRequset) get_result() int  
 pub fn (req mut FileRequset) cleanup()  
 pub fn (req mut FileRequset) strerror() string  
@@ -82,12 +82,23 @@ pub fn (uv mut Uv) fs_close(req mut FileRequset, fd int, cb voidptr)
 
 * WorkRequest对象
 
-pub fn (uv mut Uv) new_work_request(data voidptr) *WorkRequest  
+pub fn (uv mut Uv) new_work_request(data voidptr) &WorkRequest  
 pub fn (req mut WorkRequest) cancel()  
 
 * 任务队列
 
 pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr)  
+
+* tcp
+
+pub fn (uv mut Uv) new_tcp_handle() &TcpHandle  
+pub fn (handle mut TcpHandle) tcp_bind(ip string, port int, flags u32)  
+pub fn (handle mut TcpHandle) tcp_listen(backlog int, cb voidptr) int  
+pub fn (handle mut TcpHandle) tcp_accept(client mut TcpHandle) int  
+pub fn (handle mut TcpHandle) tcp_close(cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_read(alloc_buffer voidptr, cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_write(req mut WriteRequest, cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, ip string, port int, cb voidptr)  
 
 ### How to build libuv from source
 

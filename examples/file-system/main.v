@@ -15,14 +15,14 @@ mut:
 fn on_close(req mut libuv.FileRequset) {
     result := req.get_result()
     if result < 0 {
-        panic('Close error: ${req.strerror()}')
+        panic('Close error: ${req.uv.strerror(result)}')
     }
 }
 
 fn on_write(req mut libuv.FileRequset) {
     result := req.get_result()
     if result < 0 {
-        panic('Write error: ${req.strerror()}')
+        panic('Write error: ${req.uv.strerror(result)}')
     } else {
         mut extra := *GloablData(req.uv.extra)
         fd := extra.open_req.get_result()
@@ -33,7 +33,7 @@ fn on_write(req mut libuv.FileRequset) {
 fn on_read(req mut libuv.FileRequset) {
     result := req.get_result()
     if result < 0 {
-        panic('Read error: ${req.strerror()}')
+        panic('Read error: ${req.uv.strerror(result)}')
     } else if result == 0 { // 文件读取完成,关闭文件
         mut extra := *GloablData(req.uv.extra)
         fd := extra.open_req.get_result()
@@ -55,7 +55,7 @@ fn on_open(req mut libuv.FileRequset) {
         fd := result
         req.uv.fs_read(mut extra.read_req, fd, extra.buf, on_read)
     } else {
-        panic('Open error: ${req.strerror()}')
+        panic('Open error: ${req.uv.strerror(result)}')
     }
 }
 
