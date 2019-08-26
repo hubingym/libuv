@@ -4,6 +4,8 @@ examples=\
 	queue-work\
 	tcp-client\
 	tcp-server\
+	udp-client\
+	udp-server\
 	idle-basic
 
 all:

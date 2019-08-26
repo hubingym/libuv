@@ -1,6 +1,7 @@
 module main
 
 import libuv
+import time
 
 fn fib_(n i64) i64 {
     if n <= 0 {
@@ -13,7 +14,7 @@ fn fib_(n i64) i64 {
 }
 
 fn fib(req mut libuv.WorkRequest) {
-    C.sleep(3)
+    time.sleep(3)
     data := *i64(req.data)
     n := *data
     res := fib_(n)

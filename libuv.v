@@ -65,6 +65,7 @@ struct C.uv_connect_t {
 }
 [typedef]
 struct C.uv_udp_send_t {
+    handle byteptr
 }
 [typedef]
 struct C.uv_fs_t {
@@ -112,6 +113,8 @@ fn C.uv_cancel(req *uv_req_t) int
 // networking
 fn C.uv_ip4_addr(ip byteptr, port int, addr *sockaddr_in) int
 fn C.uv_ip6_addr(ip byteptr, port int, addr *sockaddr_in6) int
+fn C.uv_ip4_name(addr *sockaddr_in, name byteptr, size int) int
+fn C.uv_ip6_name(addr *sockaddr_in6, name byteptr, size int) int
 
 fn C.uv_close(handle *uv_handle_t, cb voidptr)
 fn C.uv_tcp_init(loop *uv_loop_t, handle *uv_tcp_t) int
@@ -122,6 +125,12 @@ fn C.uv_read_start(handle *uv_stream_t, alloc_cb voidptr, read_cb voidptr) int
 fn C.uv_read_stop(handle *uv_stream_t) int
 fn C.uv_write(req *uv_write_t, handle *uv_stream_t, bufs *uv_buf_t, nbufs int, cb voidptr) int
 fn C.uv_tcp_connect(req *uv_connect_t, handle *uv_stream_t, addr *sockaddr, cb voidptr) int
+
+fn C.uv_udp_init(loop *uv_loop_t, handle *uv_udp_t) int
+fn C.uv_udp_bind(handle *uv_udp_t, addr *sockaddr, flags u32) int
+fn C.uv_udp_send(req *uv_udp_send_t, handle *uv_udp_t, bufs *uv_buf_t, nbufs int, addr *sockaddr, cb voidptr) int
+fn C.uv_udp_recv_start(handle *uv_udp_t, alloc_cb voidptr, recv_cb voidptr) int
+fn C.uv_udp_recv_stop(handle *uv_udp_t) int
 
 fn todo_remove(){}
 
@@ -210,6 +219,7 @@ mut:
     _buf uv_buf_t // uv_buf_t仅有base和len两个字段
 }
 
+// 返回一个自定义缓冲区,需要调用free释放内存
 pub fn (uv mut Uv) new_buf_str(s string) UvBuf {
     buf := uv.new_buf(s.len)
     C.memcpy(buf._buf.base, s.str, s.len)
@@ -225,22 +235,30 @@ pub fn (uv mut Uv) new_buf(len int) UvBuf {
     return buf
 }
 
+// 修改一个空白缓冲区,需要调用free释放内存,仅用于alloc_cb
 pub fn (buf mut UvBuf) modify_buf(len int) {
     buf._buf.base = calloc(len)
     buf._buf.len = len
 }
 
-// 返回一个临时缓冲区,不需要释放内存
+// 返回一个临时缓冲区,不需要释放内存,相当于slice功能
 pub fn (buf UvBuf) get_temp_buf(len int) UvBuf {
     return UvBuf{
         _buf: C.uv_buf_init(buf._buf.base, len)
     }
 }
 
+// 返回临时内存对应的字符串
+pub fn (buf UvBuf) get_str(len int) string {
+    return tos(buf._buf.base, len)
+}
+
+// TODO: remove it
 pub fn (buf UvBuf) get_base() byteptr {
     return buf._buf.base
 }
 
+// 是否内存
 pub fn (buf UvBuf) free() {
     free(buf._buf.base)
 }
@@ -306,16 +324,6 @@ pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr)
     C.uv_queue_work(uv.loop, &req._req, cb, after_cb)
 }
 
-// struct SockaddrIn {
-//     _addr sockaddr_in
-// }
-
-// pub fn (uv mut Uv) get_sockaddr_in(ip string, port int) SockaddrIn {
-//     addr := SockaddrIn{}
-//     C.uv_ip4_addr(ip.str, port, &addr._addr)
-//     return addr
-// }
-
 struct ConnectRequest {
     _req uv_connect_t
 pub:
@@ -349,6 +357,25 @@ pub fn (uv mut Uv) new_write_request(buf UvBuf) &WriteRequest {
 }
 
 pub fn (req mut WriteRequest) get_handle() byteptr {
+    return req._req.handle
+}
+
+struct UdpSendRequest {
+    _req uv_udp_send_t
+pub:
+    uv &Uv
+    buf UvBuf
+}
+
+pub fn (uv mut Uv) new_udp_send_request(buf UvBuf) &UdpSendRequest {
+    mut req := &UdpSendRequest{
+        uv: uv
+        buf: buf
+    }
+    return req
+}
+
+pub fn (req mut UdpSendRequest) get_handle() byteptr {
     return req._req.handle
 }
 
@@ -398,4 +425,34 @@ pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, ip string, por
     addr := C.sockaddr_in{}
     C.uv_ip4_addr(ip.str, port, &addr)
     C.uv_tcp_connect(&req._req, &handle._handle, &addr, cb)
+}
+
+struct UdpHandle {
+    _handle uv_udp_t
+pub:
+    uv &Uv
+}
+
+pub fn (uv mut Uv) new_udp_handle() &UdpHandle {
+    mut handle := &UdpHandle{
+        uv: uv
+    }
+    C.uv_udp_init(uv.loop, &handle._handle)
+    return handle
+}
+
+pub fn (handle mut UdpHandle) udp_bind(addr voidptr, flags u32) {
+    C.uv_udp_bind(&handle._handle, addr, flags)
+}
+
+pub fn (handle mut UdpHandle) udp_send(req mut UdpSendRequest, addr voidptr, cb voidptr) {
+    C.uv_udp_send(&req._req, &handle._handle, &req.buf._buf, 1, addr, cb)
+}
+
+pub fn (handle mut UdpHandle) udp_recv_start(alloc_cb voidptr, cb voidptr) {
+    C.uv_udp_recv_start(&handle._handle, alloc_cb, cb)
+}
+
+pub fn (handle mut UdpHandle) udp_recv_stop() {
+    C.uv_udp_recv_stop(&handle._handle)
 }

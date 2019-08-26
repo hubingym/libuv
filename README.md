@@ -100,6 +100,14 @@ pub fn (handle mut TcpHandle) tcp_read(alloc_buffer voidptr, cb voidptr)
 pub fn (handle mut TcpHandle) tcp_write(req mut WriteRequest, cb voidptr)  
 pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, ip string, port int, cb voidptr)  
 
+* udp
+
+pub fn (uv mut Uv) new_udp_handle() &UdpHandle  
+pub fn (handle mut UdpHandle) udp_bind(addr voidptr, flags u32)  
+pub fn (handle mut UdpHandle) udp_send(req mut UdpSendRequest, addr voidptr, cb voidptr)  
+pub fn (handle mut UdpHandle) udp_recv_start(alloc_cb voidptr, cb voidptr)  
+pub fn (handle mut UdpHandle) udp_recv_stop()  
+
 ### How to build libuv from source
 
 依赖官方[libuv](https://github.com/libuv/libuv)静态库，下面是官方libuv的编译方法
