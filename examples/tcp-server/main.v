@@ -23,9 +23,9 @@ fn alloc_buffer(handle mut libuv.TcpHandle, suggested_size int, read_buf mut lib
 
 fn on_read(client mut libuv.TcpHandle, nread int, read_buf mut libuv.UvBuf) {
     if nread > 0 { // 把读取的内容写给客户端
-        s := tos(read_buf.get_base(), nread)
-        println('Read: $s')
-        write_buf := client.uv.new_buf_str('server echo: ' + s) // (write)申请buffer
+        s := read_buf.get_str(nread)
+        println('Recieved: $s')
+        write_buf := client.uv.new_buf_str('Echo: ' + s) // (write)申请buffer
         mut write_req := client.uv.new_write_request(write_buf)
         client.tcp_write(mut write_req, on_write)
     } else { // 读取完毕 or 读取出错了
@@ -45,7 +45,7 @@ fn on_new_connection(server mut libuv.TcpHandle, status int) {
     mut client := server.uv.new_tcp_handle()
     r := server.tcp_accept(mut client)
     if r == 0 {
-        client.tcp_read(alloc_buffer, on_read)
+        client.tcp_read_start(alloc_buffer, on_read)
     } else {
         client.tcp_close(0) // 回调函数可以为null
     }
@@ -54,8 +54,12 @@ fn on_new_connection(server mut libuv.TcpHandle, status int) {
 fn main() {
     mut uv := libuv.new_uv(0)
 
+    ip := '0.0.0.0'
+    addr := C.sockaddr_in{}
+    C.uv_ip4_addr(ip.str, DEFAULT_PORT, &addr)
+
     mut server := uv.new_tcp_handle()
-    server.tcp_bind('0.0.0.0', DEFAULT_PORT, u32(0))
+    server.tcp_bind(&addr, u32(0))
     r := server.tcp_listen(DEFAULT_BACKLOG, on_new_connection)
     if r != 0 {
         panic('Listen error ${uv.strerror(r)}')

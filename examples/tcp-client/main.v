@@ -12,7 +12,7 @@ fn alloc_buffer(handle mut libuv.TcpHandle, suggested_size int, read_buf mut lib
 
 fn on_read(handle mut libuv.TcpHandle, nread int, read_buf mut libuv.UvBuf) {
     if nread > 0 { // 把读取的内容显示出来
-        s := tos(read_buf.get_base(), nread)
+        s := read_buf.get_str(nread)
         println('$s')
     } else { // 读取完毕 or 读取出错了
         if nread != C.UV_EOF {
@@ -29,7 +29,7 @@ fn on_write(req mut libuv.WriteRequest, status int) {
         panic('Write error ${req.uv.strerror(status)}')
     } else {
         mut handle := *libuv.TcpHandle(req.get_handle())
-        handle.tcp_read(alloc_buffer, on_read)
+        handle.tcp_read_start(alloc_buffer, on_read)
     }
 }
 
@@ -37,7 +37,7 @@ fn on_connect(req mut libuv.ConnectRequest, status int) {
     if status < 0 {
         panic('connect failed error ${req.uv.err_name(status)}')
     } else {
-        buf := req.uv.new_buf_str('client: hello') // 申请buffer
+        buf := req.uv.new_buf_str('hello') // 申请buffer
         mut write_req := req.uv.new_write_request(buf)
         mut handle := *libuv.TcpHandle(req.get_handle())
         handle.tcp_write(mut write_req, on_write)
@@ -47,9 +47,13 @@ fn on_connect(req mut libuv.ConnectRequest, status int) {
 fn main() {
     mut uv := libuv.new_uv(0)
 
+    ip := '127.0.0.1'
+    addr := C.sockaddr_in{}
+    C.uv_ip4_addr(ip.str, DEFAULT_PORT, &addr)
+
     mut handle := uv.new_tcp_handle()
     mut req := uv.new_connect_request()
-    handle.tcp_connect(mut req, '127.0.0.1', DEFAULT_PORT, on_connect)
+    handle.tcp_connect(mut req, addr, on_connect)
 
     uv.run_loop()
 }

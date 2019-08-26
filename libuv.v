@@ -253,11 +253,6 @@ pub fn (buf UvBuf) get_str(len int) string {
     return tos(buf._buf.base, len)
 }
 
-// TODO: remove it
-pub fn (buf UvBuf) get_base() byteptr {
-    return buf._buf.base
-}
-
 // 是否内存
 pub fn (buf UvBuf) free() {
     free(buf._buf.base)
@@ -393,11 +388,8 @@ pub fn (uv mut Uv) new_tcp_handle() &TcpHandle {
     return handle
 }
 
-pub fn (handle mut TcpHandle) tcp_bind(ip string, port int, flags u32) {
-    // TODO: 目前sockaddr_in无法正常编译,暂时使用ip+port
-    addr := C.sockaddr_in{}
-    C.uv_ip4_addr(ip.str, port, &addr)
-    C.uv_tcp_bind(&handle._handle, &addr, flags)
+pub fn (handle mut TcpHandle) tcp_bind(addr voidptr, flags u32) {
+    C.uv_tcp_bind(&handle._handle, addr, flags)
 }
 
 pub fn (handle mut TcpHandle) tcp_listen(backlog int, cb voidptr) int {
@@ -412,19 +404,20 @@ pub fn (handle mut TcpHandle) tcp_close(cb voidptr) {
     C.uv_close(&handle._handle, cb)
 }
 
-pub fn (handle mut TcpHandle) tcp_read(alloc_buffer voidptr, cb voidptr) {
+pub fn (handle mut TcpHandle) tcp_read_start(alloc_buffer voidptr, cb voidptr) {
     C.uv_read_start(&handle._handle, alloc_buffer, cb)
+}
+
+pub fn (handle mut TcpHandle) tcp_read_stop() {
+    C.uv_read_stop(&handle._handle)
 }
 
 pub fn (handle mut TcpHandle) tcp_write(req mut WriteRequest, cb voidptr) {
     C.uv_write(&req._req, &handle._handle, &req.buf._buf, 1, cb)
 }
 
-pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, ip string, port int, cb voidptr) {
-    // TODO: 目前sockaddr_in无法正常编译,暂时使用ip+port
-    addr := C.sockaddr_in{}
-    C.uv_ip4_addr(ip.str, port, &addr)
-    C.uv_tcp_connect(&req._req, &handle._handle, &addr, cb)
+pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, addr voidptr, cb voidptr) {
+    C.uv_tcp_connect(&req._req, &handle._handle, addr, cb)
 }
 
 struct UdpHandle {

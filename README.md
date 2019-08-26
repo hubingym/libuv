@@ -62,8 +62,6 @@ buf对象用于分配内存，主要用做文件操作时的数据缓冲区
 pub fn (uv mut Uv) new_buf(len int) UvBuf  
 // 释放内存  
 pub fn (buf UvBuf) free()  
-// 从现有内存中截取部分内存,返回对象不需要释放内存  
-pub fn (buf UvBuf) get_temp_buf(len int) UvBuf  
 
 * FileRequset对象
 
@@ -92,13 +90,14 @@ pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr)
 * tcp
 
 pub fn (uv mut Uv) new_tcp_handle() &TcpHandle  
-pub fn (handle mut TcpHandle) tcp_bind(ip string, port int, flags u32)  
+pub fn (handle mut TcpHandle) tcp_bind(addr voidptr, flags u32)  
 pub fn (handle mut TcpHandle) tcp_listen(backlog int, cb voidptr) int  
 pub fn (handle mut TcpHandle) tcp_accept(client mut TcpHandle) int  
 pub fn (handle mut TcpHandle) tcp_close(cb voidptr)  
-pub fn (handle mut TcpHandle) tcp_read(alloc_buffer voidptr, cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_read_start(alloc_buffer voidptr, cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_read_stop()  
 pub fn (handle mut TcpHandle) tcp_write(req mut WriteRequest, cb voidptr)  
-pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, ip string, port int, cb voidptr)  
+pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, addr voidptr, cb voidptr)  
 
 * udp
 
