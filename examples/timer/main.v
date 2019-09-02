@@ -4,19 +4,19 @@ import libuv
 
 struct GloablData {
 mut:
-    timer1 *libuv.Timer
-    timer2 *libuv.Timer
+    timer1 &libuv.Timer
+    timer2 &libuv.Timer
 }
 
 fn timer1_callback(timer1 mut libuv.Timer) {
-    // mut extra := *GloablData(timer1.uv.extra)
+    // mut extra := &GloablData(timer1.uv.extra)
     // extra.timer2.start(5000)
     println('timer1_callback')
     // timer1.stop()
 }
 
 fn timer2_callback(timer2 mut libuv.Timer) {
-    mut extra := *GloablData(timer2.uv.extra)
+    mut extra := &GloablData(timer2.uv.extra)
     println('timer2_callback')
     timer2.stop()
     extra.timer1.stop()

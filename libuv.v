@@ -76,19 +76,19 @@ struct C.uv_work_t {
 }
 
 // loop
-fn C.uv_default_loop() *uv_loop_t
-fn C.uv_run(*uv_loop_t, int) int
-fn C.uv_stop(*uv_loop_t)
+fn C.uv_default_loop() &uv_loop_t
+fn C.uv_run(loop &uv_loop_t, mode int) int
+fn C.uv_stop(loop &uv_loop_t)
 
 // timer
-fn C.uv_timer_init(*uv_loop_t, *uv_timer_t) int
-fn C.uv_timer_start(*uv_timer_t, voidptr, int, int) int
-fn C.uv_timer_stop(*uv_timer_t) int
+fn C.uv_timer_init(loop &uv_loop_t, handle &uv_timer_t) int
+fn C.uv_timer_start(handle &uv_timer_t, cb voidptr, timeout int, repeat int) int
+fn C.uv_timer_stop(handle &uv_timer_t) int
 
 // idle
-fn C.uv_idle_init(*uv_loop_t, *uv_idle_t) int
-fn C.uv_idle_start(*uv_idle_t, voidptr) int
-fn C.uv_idle_stop(*uv_idle_t) int
+fn C.uv_idle_init(loop &uv_loop_t, idle &uv_idle_t) int
+fn C.uv_idle_start(idle &uv_idle_t, cb voidptr) int
+fn C.uv_idle_stop(idle &uv_idle_t) int
 
 // uv buffer
 fn C.uv_buf_init(base byteptr, len int) uv_buf_t
@@ -98,41 +98,47 @@ fn C.uv_strerror(err int) byteptr
 fn C.uv_err_name(err int) byteptr
 
 // filesystem
-fn C.uv_fs_req_cleanup(*uv_fs_t)
-fn C.uv_fs_open(loop *uv_loop_t, req *uv_fs_t, filename byteptr, flags int, mode int, cb voidptr) int
-fn C.uv_fs_close(loop *uv_loop_t, req *uv_fs_t, fd int, cb voidptr) int
-fn C.uv_fs_read(loop *uv_loop_t, req *uv_fs_t, fd int, bufs *uv_buf_t, nbufs int, offset int, cb voidptr) int
-fn C.uv_fs_write(loop *uv_loop_t, req *uv_fs_t, fd int, bufs *uv_buf_t, nbufs int, offset int, cb voidptr) int
+fn C.uv_fs_req_cleanup(req &uv_fs_t)
+fn C.uv_fs_open(loop &uv_loop_t, req &uv_fs_t, filename byteptr, flags int, mode int, cb voidptr) int
+fn C.uv_fs_close(loop &uv_loop_t, req &uv_fs_t, fd int, cb voidptr) int
+fn C.uv_fs_read(loop &uv_loop_t, req &uv_fs_t, fd int, bufs &uv_buf_t, nbufs int, offset int, cb voidptr) int
+fn C.uv_fs_write(loop &uv_loop_t, req &uv_fs_t, fd int, bufs &uv_buf_t, nbufs int, offset int, cb voidptr) int
 
 // queue work
-fn C.uv_queue_work(loop *uv_loop_t, req *uv_work_t, cb voidptr, after_cb voidptr) int
+fn C.uv_queue_work(loop &uv_loop_t, req &uv_work_t, cb voidptr, after_cb voidptr) int
 
 // request
-fn C.uv_cancel(req *uv_req_t) int
+fn C.uv_cancel(req &uv_req_t) int
 
 // networking
-fn C.uv_ip4_addr(ip byteptr, port int, addr *sockaddr_in) int
-fn C.uv_ip6_addr(ip byteptr, port int, addr *sockaddr_in6) int
-fn C.uv_ip4_name(addr *sockaddr_in, name byteptr, size int) int
-fn C.uv_ip6_name(addr *sockaddr_in6, name byteptr, size int) int
+fn C.uv_ip4_addr(ip byteptr, port int, addr &sockaddr_in) int
+fn C.uv_ip6_addr(ip byteptr, port int, addr &sockaddr_in6) int
+fn C.uv_ip4_name(addr &sockaddr_in, name byteptr, size int) int
+fn C.uv_ip6_name(addr &sockaddr_in6, name byteptr, size int) int
 
-fn C.uv_close(handle *uv_handle_t, cb voidptr)
-fn C.uv_tcp_init(loop *uv_loop_t, handle *uv_tcp_t) int
-fn C.uv_tcp_bind(handle *uv_tcp_t, addr *sockaddr, flags u32) int
-fn C.uv_listen(server *uv_stream_t, backlog int, cb voidptr) int
-fn C.uv_accept(server *uv_stream_t, client *uv_stream_t) int
-fn C.uv_read_start(handle *uv_stream_t, alloc_cb voidptr, read_cb voidptr) int
-fn C.uv_read_stop(handle *uv_stream_t) int
-fn C.uv_write(req *uv_write_t, handle *uv_stream_t, bufs *uv_buf_t, nbufs int, cb voidptr) int
-fn C.uv_tcp_connect(req *uv_connect_t, handle *uv_stream_t, addr *sockaddr, cb voidptr) int
+fn C.uv_close(handle &uv_handle_t, cb voidptr)
+fn C.uv_tcp_init(loop &uv_loop_t, handle &uv_tcp_t) int
+fn C.uv_tcp_bind(handle &uv_tcp_t, addr &sockaddr, flags u32) int
+fn C.uv_listen(server &uv_stream_t, backlog int, cb voidptr) int
+fn C.uv_accept(server &uv_stream_t, client &uv_stream_t) int
+fn C.uv_read_start(handle &uv_stream_t, alloc_cb voidptr, read_cb voidptr) int
+fn C.uv_read_stop(handle &uv_stream_t) int
+fn C.uv_write(req &uv_write_t, handle &uv_stream_t, bufs &uv_buf_t, nbufs int, cb voidptr) int
+fn C.uv_tcp_connect(req &uv_connect_t, handle &uv_stream_t, addr &sockaddr, cb voidptr) int
 
-fn C.uv_udp_init(loop *uv_loop_t, handle *uv_udp_t) int
-fn C.uv_udp_bind(handle *uv_udp_t, addr *sockaddr, flags u32) int
-fn C.uv_udp_send(req *uv_udp_send_t, handle *uv_udp_t, bufs *uv_buf_t, nbufs int, addr *sockaddr, cb voidptr) int
-fn C.uv_udp_recv_start(handle *uv_udp_t, alloc_cb voidptr, recv_cb voidptr) int
-fn C.uv_udp_recv_stop(handle *uv_udp_t) int
+fn C.uv_udp_init(loop &uv_loop_t, handle &uv_udp_t) int
+fn C.uv_udp_bind(handle &uv_udp_t, addr &sockaddr, flags u32) int
+fn C.uv_udp_send(req &uv_udp_send_t, handle &uv_udp_t, bufs &uv_buf_t, nbufs int, addr &sockaddr, cb voidptr) int
+fn C.uv_udp_recv_start(handle &uv_udp_t, alloc_cb voidptr, recv_cb voidptr) int
+fn C.uv_udp_recv_stop(handle &uv_udp_t) int
 
 fn todo_remove(){}
+
+// NOTICE: 必须放struct Uv前面,不然会编译错误
+struct UvBuf {
+mut:
+    _buf uv_buf_t // uv_buf_t仅有base和len两个字段
+}
 
 struct Uv {
     loop &uv_loop_t
@@ -212,11 +218,6 @@ pub fn (idle mut Idle) start() {
 
 pub fn (idle mut Idle) stop() {
     C.uv_idle_stop(&idle._idle)
-}
-
-struct UvBuf {
-mut:
-    _buf uv_buf_t // uv_buf_t仅有base和len两个字段
 }
 
 // 返回一个自定义缓冲区,需要调用free释放内存

@@ -6,10 +6,10 @@ import libuv
 struct GloablData {
 mut:
     buf libuv.UvBuf
-    open_req *libuv.FileRequset
-    read_req *libuv.FileRequset
-    write_req *libuv.FileRequset
-    close_req *libuv.FileRequset
+    open_req &libuv.FileRequset
+    read_req &libuv.FileRequset
+    write_req &libuv.FileRequset
+    close_req &libuv.FileRequset
 }
 
 fn on_close(req mut libuv.FileRequset) {
