@@ -8,7 +8,7 @@ mut:
     timer2 &libuv.Timer
 }
 
-fn timer1_callback(timer1 mut libuv.Timer) {
+fn timer1_callback(timer1 &libuv.Timer) {
     // mut extra := &GloablData(timer1.uv.extra)
     // extra.timer2.start(5000)
     println('timer1_callback')

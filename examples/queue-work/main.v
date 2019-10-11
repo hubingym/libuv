@@ -13,7 +13,7 @@ fn fib_(n i64) i64 {
     }
 }
 
-fn fib(req mut libuv.WorkRequest) {
+fn fib(req &libuv.WorkRequest) {
     time.sleep(3)
     data := *i64(req.data)
     n := *data
@@ -21,7 +21,7 @@ fn fib(req mut libuv.WorkRequest) {
     println('ibonacci is $res')
 }
 
-fn after_fib(req mut libuv.WorkRequest, status int) {
+fn after_fib(req &libuv.WorkRequest, status int) {
     println('Done calculating fibonacci')
 }
 

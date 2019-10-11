@@ -17,7 +17,7 @@ fn on_write(req mut libuv.WriteRequest, status int) {
     }
 }
 
-fn alloc_buffer(handle mut libuv.TcpHandle, suggested_size int, read_buf mut libuv.UvBuf) {
+fn alloc_buffer(handle &libuv.TcpHandle, suggested_size int, read_buf mut libuv.UvBuf) {
     read_buf.modify_buf(suggested_size) // (read)申请buffer
 }
 

@@ -6,7 +6,7 @@ const (
     DEFAULT_PORT = 7000
 )
 
-fn alloc_buffer(handle mut libuv.TcpHandle, suggested_size int, read_buf mut libuv.UvBuf) {
+fn alloc_buffer(handle &libuv.TcpHandle, suggested_size int, read_buf mut libuv.UvBuf) {
     read_buf.modify_buf(suggested_size) // (read)申请buffer
 }
 

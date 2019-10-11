@@ -2,7 +2,7 @@ module main
 
 import libuv
 
-fn alloc_buffer(handle mut libuv.UdpHandle, suggested_size int, recv_buf mut libuv.UvBuf) {
+fn alloc_buffer(handle &libuv.UdpHandle, suggested_size int, recv_buf mut libuv.UvBuf) {
     recv_buf.modify_buf(suggested_size) // (recv)申请buffer
 }
 
