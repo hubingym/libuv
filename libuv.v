@@ -12,7 +12,7 @@ mut:
     base byteptr
     len int
 }
-struct C.sockaddr_in {
+pub struct C.sockaddr_in {
 }
 struct C.sockaddr_in6 {
 }
@@ -135,12 +135,12 @@ fn C.uv_udp_recv_stop(handle &uv_udp_t) int
 fn todo_remove(){}
 
 // NOTICE: 必须放struct Uv前面,不然会编译错误
-struct UvBuf {
+pub struct UvBuf {
 mut:
     _buf uv_buf_t // uv_buf_t仅有base和len两个字段
 }
 
-struct Uv {
+pub struct Uv {
     loop &uv_loop_t
 pub:
     extra voidptr // v没有全局变量,此处额外数据功能等同全局变量
@@ -172,7 +172,7 @@ pub fn (uv mut Uv) err_name(err int) string {
     return tos_clone(s)
 }
 
-struct Timer {
+pub struct Timer {
     _timer uv_timer_t
     cb voidptr
 pub:
@@ -196,7 +196,7 @@ pub fn (t mut Timer) stop() {
     C.uv_timer_stop(&t._timer)
 }
 
-struct Idle {
+pub struct Idle {
     _idle uv_idle_t
     cb voidptr
 pub:
@@ -254,12 +254,14 @@ pub fn (buf UvBuf) get_str(len int) string {
     return tos(buf._buf.base, len)
 }
 
-// 是否内存
+// 释放内存
 pub fn (buf UvBuf) free() {
-    free(buf._buf.base)
+    unsafe {
+        free(buf._buf.base)
+    }
 }
 
-struct FileRequset {
+pub struct FileRequset {
     _req uv_fs_t
 pub:
     uv &Uv
@@ -297,7 +299,7 @@ pub fn (uv mut Uv) fs_close(req mut FileRequset, fd int, cb voidptr) {
     C.uv_fs_close(uv.loop, &req._req, fd, cb)
 }
 
-struct WorkRequest {
+pub struct WorkRequest {
     _req uv_work_t
 pub:
     uv &Uv
@@ -320,7 +322,7 @@ pub fn (uv mut Uv) queue_work(req mut WorkRequest, cb voidptr, after_cb voidptr)
     C.uv_queue_work(uv.loop, &req._req, cb, after_cb)
 }
 
-struct ConnectRequest {
+pub struct ConnectRequest {
     _req uv_connect_t
 pub:
     uv &Uv
@@ -337,7 +339,7 @@ pub fn (req mut ConnectRequest) get_handle() byteptr {
     return req._req.handle
 }
 
-struct WriteRequest {
+pub struct WriteRequest {
     _req uv_write_t
 pub:
     uv &Uv
@@ -356,7 +358,7 @@ pub fn (req mut WriteRequest) get_handle() byteptr {
     return req._req.handle
 }
 
-struct UdpSendRequest {
+pub struct UdpSendRequest {
     _req uv_udp_send_t
 pub:
     uv &Uv
@@ -375,7 +377,7 @@ pub fn (req mut UdpSendRequest) get_handle() byteptr {
     return req._req.handle
 }
 
-struct TcpHandle {
+pub struct TcpHandle {
     _handle uv_tcp_t
 pub:
     uv &Uv
@@ -421,7 +423,7 @@ pub fn (handle mut TcpHandle) tcp_connect(req mut ConnectRequest, addr voidptr, 
     C.uv_tcp_connect(&req._req, &handle._handle, addr, cb)
 }
 
-struct UdpHandle {
+pub struct UdpHandle {
     _handle uv_udp_t
 pub:
     uv &Uv
